@@ -1,279 +1,139 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
-import { ArrowRight, Sparkles, MapPin, Globe, Code, Terminal, Github, CreditCard, Box } from 'lucide-react';
-import { HeroVisual } from './HeroVisual';
-import { HolographicDevCard } from './HolographicDevCard';
-import { soundFx } from '../utils/audio';
-import { THEMES, ThemeId } from '../utils/theme';
-import { BRAND_LOGO_SRC, BRAND_GITHUB } from '../utils/brand';
+import React from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { portfolioData } from '../data/portfolioData';
+import { ArrowDown, ArrowUpRight, Github, Linkedin, Code } from 'lucide-react';
+import foxLogo from '../assets/images/fox_brand_logo_1787738690434.jpg';
 
 interface HeroProps {
-  onExplore: () => void;
-  isMobile: boolean;
-  themeId?: ThemeId;
+  onViewProject: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onExplore, isMobile, themeId = 'cyan' }) => {
-  const [typedText, setTypedText] = useState('');
-  const [typingIndex, setTypingIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [visualMode, setVisualMode] = useState<'3d' | 'card'>('3d');
+export const Hero: React.FC<HeroProps> = ({ onViewProject }) => {
+  const { personal, socials } = portfolioData;
+  const shouldReduceMotion = useReducedMotion();
 
-  const activeTheme = THEMES[themeId] || THEMES.cyan;
+  const transitionConfig = {
+    duration: shouldReduceMotion ? 0.01 : 0.75,
+    ease: [0.22, 1, 0.36, 1],
+  };
 
-  const roles = [
-    'Software Engineer',
-    'Full-Stack Developer',
-    'Creative UI Architect',
-    'Algorithm Enthusiast',
-    'Open Source Builder',
-  ];
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: shouldReduceMotion ? 0 : 0.12,
+        delayChildren: 0.1,
+      },
+    },
+  };
 
-  useEffect(() => {
-    const currentRole = roles[typingIndex];
-    const speed = isDeleting ? 35 : 80;
-
-    const timeout = setTimeout(() => {
-      if (!isDeleting && typedText === currentRole) {
-        setTimeout(() => setIsDeleting(true), 1600);
-      } else if (isDeleting && typedText === '') {
-        setIsDeleting(false);
-        setTypingIndex((prev) => (prev + 1) % roles.length);
-      } else {
-        setTypedText(
-          currentRole.substring(0, isDeleting ? typedText.length - 1 : typedText.length + 1)
-        );
-      }
-    }, speed);
-
-    return () => clearTimeout(timeout);
-  }, [typedText, isDeleting, typingIndex]);
-
-  const firstName = 'PRAJWAL'.split('');
-  const lastName = 'POKHAREL'.split('');
+  const itemVariants = {
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 25 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: transitionConfig,
+    },
+  };
 
   return (
-    <section id="hero" className="relative min-h-screen pt-28 sm:pt-36 pb-16 flex flex-col justify-center">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
-        {/* Status Badges Row */}
+    <section id="top" className="relative pt-28 pb-20 md:pt-36 md:pb-28">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="flex flex-wrap items-center gap-3 mb-6"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
         >
-          {/* Brand Emblem Avatar Tag */}
-          <div className="flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs font-mono text-amber-300 backdrop-blur-md shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-            <img
-              src={BRAND_LOGO_SRC}
-              alt="Fox Sigil"
-              referrerPolicy="no-referrer"
-              className="h-4 w-4 rounded-full object-cover border border-amber-400/50"
-            />
-            <span className="font-bold tracking-wider">SOLAR FOX SIGIL</span>
-          </div>
-
-          <div
-            className="flex items-center gap-2 rounded-full border px-3.5 py-1 text-xs font-mono backdrop-blur-md transition-colors"
-            style={{
-              borderColor: activeTheme.colors.border,
-              backgroundColor: `${activeTheme.colors.primary}15`,
-              color: activeTheme.colors.primary,
-            }}
-          >
-            <span className="relative flex h-2 w-2">
-              <span
-                className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                style={{ backgroundColor: activeTheme.colors.primary }}
+          {/* Avatar & Status Header */}
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6 mb-8">
+            <div className="relative group shrink-0 w-24 h-24 sm:w-28 sm:h-28">
+              {/* Subtle warm amber/orange aura matching the fox */}
+              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-amber-500/30 via-orange-500/20 to-sky-500/20 blur-md opacity-75 group-hover:opacity-100 transition duration-500" />
+              <img
+                src={foxLogo}
+                alt="Prajwal Pokharel"
+                className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border border-slate-700/90 shadow-2xl bg-slate-900 ring-1 ring-white/10 group-hover:scale-[1.02] transition-transform duration-300"
               />
-              <span
-                className="relative inline-flex rounded-full h-2 w-2"
-                style={{ backgroundColor: activeTheme.colors.primary }}
+              <span 
+                className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 ring-4 ring-[#111827] shadow-sm" 
+                title="Active student & developer" 
               />
-            </span>
-            <span>AVAILABLE TO BUILD & COLLABORATE</span>
-          </div>
+            </div>
 
-          <div className="flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-900/60 px-3.5 py-1 text-xs font-mono text-slate-300 backdrop-blur-md">
-            <MapPin className="h-3.5 w-3.5 text-rose-400" />
-            <span>Kathmandu, Nepal 🇳🇵</span>
-          </div>
-
-          <a
-            href="https://prajwal-pokharel.com.np"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hidden sm:flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-900/60 px-3.5 py-1 text-xs font-mono text-slate-300 hover:border-slate-700 hover:text-white transition-all backdrop-blur-md"
-          >
-            <Globe className="h-3.5 w-3.5 text-cyan-400" />
-            <span>prajwal-pokharel.com.np</span>
-          </a>
-
-          {/* Visual Mode Selector Switch */}
-          <div className="ml-auto hidden md:flex items-center gap-1 p-1 rounded-xl border border-slate-800 bg-slate-900/80 font-mono text-[11px]">
-            <button
-              onClick={() => {
-                soundFx.playClick();
-                setVisualMode('3d');
-              }}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all ${
-                visualMode === '3d'
-                  ? 'bg-slate-800 text-white font-bold shadow'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Box className="h-3 w-3" />
-              <span>3D WEBGL</span>
-            </button>
-            <button
-              onClick={() => {
-                soundFx.playClick();
-                setVisualMode('card');
-              }}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg transition-all ${
-                visualMode === 'card'
-                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40 font-bold'
-                  : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <CreditCard className="h-3 w-3" />
-              <span>HOLO PASS</span>
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Main Grid: Kinetic Typography + 3D Visual */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-          {/* Left Hero Content */}
-          <div className="lg:col-span-7 flex flex-col items-start">
-            {/* Kinetic Assembling Title */}
-            <h1 className="font-syne font-extrabold text-5xl sm:text-7xl xl:text-8xl tracking-tight leading-none text-white select-none">
-              {/* PRAJWAL */}
-              <div className="flex overflow-hidden">
-                {firstName.map((char, index) => (
-                  <motion.span
-                    key={`fn-${index}`}
-                    initial={{ y: 100, opacity: 0, rotateX: 90 }}
-                    animate={{ y: 0, opacity: 1, rotateX: 0 }}
-                    transition={{
-                      duration: 0.8,
-                      delay: index * 0.05,
-                      ease: [0.16, 1, 0.3, 1],
-                    }}
-                    className="inline-block hover:opacity-80 transition-opacity duration-200"
-                  >
-                    {char}
-                  </motion.span>
-                ))}
+            <div>
+              {/* Status indicator */}
+              <div className="inline-flex items-center gap-2 text-xs font-mono text-slate-300 mb-2 px-3 py-1.5 rounded-md bg-slate-800/80 border border-slate-700/80 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>{personal.education.status} {personal.education.degree}</span>
               </div>
-
-              {/* POKHAREL with Gradient */}
-              <div className="flex overflow-hidden mt-1 sm:mt-2">
-                {lastName.map((char, index) => (
-                  <motion.span
-                    key={`ln-${index}`}
-                    initial={{ y: 100, opacity: 0, rotateX: 90 }}
-                    animate={{ y: 0, opacity: 1, rotateX: 0 }}
-                    transition={{
-                      duration: 0.8,
-                      delay: 0.3 + index * 0.05,
-                      ease: [0.16, 1, 0.3, 1],
-                    }}
-                    className="inline-block text-transparent bg-clip-text bg-gradient-to-r hover:scale-105 transition-transform"
-                    style={{
-                      backgroundImage: `linear-gradient(to right, ${activeTheme.colors.primary}, ${activeTheme.colors.secondary}, ${activeTheme.colors.accent})`,
-                    }}
-                  >
-                    {char}
-                  </motion.span>
-                ))}
-              </div>
-            </h1>
-
-            {/* Subtitle with Typewriter Role */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="mt-6 flex flex-wrap items-center gap-2 font-mono text-lg sm:text-2xl text-slate-300"
-            >
-              <span style={{ color: activeTheme.colors.primary }} className="font-bold">&gt;</span>
-              <span className="text-slate-400 font-light">Crafting</span>
-              <span
-                className="font-bold text-white underline decoration-2 underline-offset-4"
-                style={{ textDecorationColor: activeTheme.colors.primary }}
-              >
-                {typedText}
-              </span>
-              <span
-                className="animate-pulse"
-                style={{ color: activeTheme.colors.primary }}
-              >
-                |
-              </span>
-            </motion.div>
-
-            {/* Concise Mission Statement */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-              className="mt-5 max-w-2xl text-slate-400 text-sm sm:text-base leading-relaxed font-sans"
-            >
-              Building high-performance web applications, interactive WebGL experiences, and robust algorithmic tooling from Kathmandu, Nepal. Focused on clean TypeScript architecture, fluid micro-interactions, and real software that works flawlessly.
-            </motion.p>
-
-            {/* CTA Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              className="mt-8 flex flex-wrap items-center gap-4"
-            >
-              <button
-                onClick={() => {
-                  soundFx.playClick();
-                  onExplore();
-                }}
-                data-cursor="EXPLORE"
-                className="group relative inline-flex items-center gap-3 overflow-hidden rounded-2xl px-6 py-3.5 text-sm font-semibold text-white transition-all shadow-xl active:scale-95"
-                style={{
-                  background: `linear-gradient(to right, ${activeTheme.colors.primary}, ${activeTheme.colors.secondary})`,
-                  boxShadow: `0 10px 30px ${activeTheme.colors.glow}`,
-                }}
-              >
-                <span>EXPLORE PORTFOLIO</span>
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </button>
-
-              <a
-                href={BRAND_GITHUB}
-                target="_blank"
-                rel="noopener noreferrer"
-                onMouseEnter={() => soundFx.playHover()}
-                data-cursor="GITHUB"
-                className="flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900/80 px-6 py-3.5 text-sm font-semibold text-slate-200 hover:border-slate-500 hover:text-white transition-all backdrop-blur-md shadow-lg"
-              >
-                <Github className="h-4 w-4" style={{ color: activeTheme.colors.primary }} />
-                <span>GitHub Profile</span>
-              </a>
-            </motion.div>
-          </div>
-
-          {/* Right Visual: 3D Polyhedron / Holographic Dev Pass */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-            className="lg:col-span-5"
-          >
-            {visualMode === '3d' ? (
-              <HeroVisual isMobile={isMobile} themeId={themeId} />
-            ) : (
-              <HolographicDevCard />
-            )}
+              <p className="text-sm font-medium text-slate-400">
+                Developer & CSIT Student
+              </p>
+            </div>
           </motion.div>
-        </div>
+
+          {/* Main Title */}
+          <motion.h1 
+            variants={itemVariants} 
+            className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white mb-4"
+          >
+            {personal.name}
+          </motion.h1>
+
+          {/* Natural Subtitle */}
+          <motion.p 
+            variants={itemVariants} 
+            className="text-lg sm:text-xl font-medium text-sky-400 mb-5"
+          >
+            {personal.role}
+          </motion.p>
+
+          {/* Short honest sentence */}
+          <motion.p 
+            variants={itemVariants} 
+            className="text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed mb-8"
+          >
+            {personal.shortBio}
+          </motion.p>
+
+          {/* Action Buttons */}
+          <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={onViewProject}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white hover:bg-slate-100 text-slate-950 font-medium text-sm transition-all duration-150 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-offset-2 focus:ring-offset-[#111827] cursor-pointer"
+            >
+              <Code className="w-4 h-4 text-slate-700" />
+              <span>View Project</span>
+              <ArrowDown className="w-3.5 h-3.5 text-slate-700" />
+            </button>
+
+            <a
+              href={socials.github.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-200 hover:text-white border border-slate-700 font-medium text-sm transition-colors duration-150 shadow-xs"
+              title="GitHub Profile"
+            >
+              <Github className="w-4 h-4" />
+              <span>GitHub</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400" />
+            </a>
+
+            <a
+              href={socials.linkedin.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-200 hover:text-white border border-slate-700 font-medium text-sm transition-colors duration-150 shadow-xs"
+              title="LinkedIn Profile"
+            >
+              <Linkedin className="w-4 h-4" />
+              <span>LinkedIn</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400" />
+            </a>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );

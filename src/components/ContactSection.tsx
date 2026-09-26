@@ -1,255 +1,213 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { Send, Globe, Github, MessageSquare, CheckCircle, Flame, Users, Sparkles, Mail, MapPin } from 'lucide-react';
-import { doc, setDoc } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../lib/firebase';
-import { soundFx } from '../utils/audio';
-import { FirebaseCommunity } from './FirebaseCommunity';
-import { BRAND_EMAIL, BRAND_GITHUB, BRAND_GITHUB_HANDLE, BRAND_LOCATION, BRAND_NAME, BRAND_WEBSITE } from '../utils/brand';
+import { motion, useReducedMotion } from 'framer-motion';
+import { portfolioData } from '../data/portfolioData';
+import { Github, Linkedin, MessageSquare, Mail, Copy, Check, ArrowUpRight } from 'lucide-react';
 
 export const ContactSection: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'inquiry' | 'guestbook'>('inquiry');
-  const [formState, setFormState] = useState({ name: '', email: '', subject: '', message: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSent, setIsSent] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const { socials } = portfolioData;
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const shouldReduceMotion = useReducedMotion();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formState.name || !formState.message) return;
+  const transitionConfig = {
+    duration: shouldReduceMotion ? 0.01 : 0.75,
+    ease: [0.22, 1, 0.36, 1],
+  };
 
-    setIsSubmitting(true);
-    setErrorMsg(null);
-    const inquiryId = `inq_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+  const containerVariants = {
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 35 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        ...transitionConfig,
+        staggerChildren: shouldReduceMotion ? 0 : 0.1,
+      },
+    },
+  };
 
-    try {
-      await setDoc(doc(db, 'inquiries', inquiryId), {
-        name: formState.name.trim().slice(0, 100),
-        email: formState.email.trim().slice(0, 150) || 'anonymous@visitor.com',
-        subject: formState.subject.trim().slice(0, 150) || 'Direct Portfolio Inquiry',
-        message: formState.message.trim().slice(0, 2000),
-        createdAt: new Date().toISOString(),
-      });
+  const childVariants = {
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 25 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: transitionConfig,
+    },
+  };
 
-      soundFx.playSuccess();
-      setIsSent(true);
-      setTimeout(() => {
-        setIsSent(false);
-        setFormState({ name: '', email: '', subject: '', message: '' });
-      }, 4000);
-    } catch (err: any) {
-      console.error('Error submitting inquiry to Firestore:', err);
-      setErrorMsg('Failed to transmit message to cloud database. Please try again.');
-      try {
-        handleFirestoreError(err, OperationType.CREATE, `inquiries/${inquiryId}`);
-      } catch (e) {
-        // logged via handleFirestoreError
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+  const copyToClipboard = (text: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
   };
 
   return (
-    <section id="contact" className="relative py-24 sm:py-32 bg-slate-950/60">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-        {/* Section Heading */}
-        <div className="flex flex-col items-center mb-10">
-          <div className="flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-3.5 py-1 text-xs font-mono text-amber-300 mb-3">
-            <Mail className="h-3.5 w-3.5 text-amber-400" />
-            <span>06 // DIRECT TRANSMISSION & CONTACT</span>
-          </div>
-
-          <h2 className="font-syne text-4xl sm:text-7xl font-extrabold text-white tracking-tight leading-tight">
-            LET'S CONNECT.
-          </h2>
-
-          <p className="mt-3 font-syne text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-yellow-300">
-            {BRAND_NAME} • {BRAND_LOCATION}
+    <motion.section
+      id="contact"
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.15, margin: "-60px" }}
+      className="py-16 md:py-24 border-t border-slate-800/80 bg-slate-900/30"
+    >
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+        {/* Section Header */}
+        <motion.div variants={childVariants} className="mb-10">
+          <p className="text-xs font-mono uppercase tracking-wider text-sky-400 mb-2">
+            05 / Get In Touch
           </p>
-        </div>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            Social & Contact
+          </h2>
+          <p className="text-sm sm:text-base text-slate-300 mt-2 max-w-xl">
+            Feel free to reach out for conversations about coding, collaborative projects, or tech discussions.
+          </p>
+        </motion.div>
 
-        {/* Contact Badges */}
-        <div className="flex flex-wrap justify-center items-center gap-3 mb-10">
-          <a
-            href={`mailto:${BRAND_EMAIL}`}
-            className="flex items-center gap-2 rounded-2xl border border-amber-500/40 bg-slate-900/90 px-4 py-2.5 font-mono text-xs text-amber-300 hover:bg-amber-500/20 transition-all shadow-lg"
+        {/* Contact Channels Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Email */}
+          <motion.div
+            variants={childVariants}
+            whileHover={{ y: -3, transition: { duration: 0.2 } }}
+            className="p-5 sm:p-6 rounded-xl bg-slate-800/60 border border-slate-700/80 flex flex-col justify-between shadow-xs"
           >
-            <Mail className="h-4 w-4 text-amber-400" />
-            <span>{BRAND_EMAIL}</span>
-          </a>
-
-          <div className="flex items-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/90 px-4 py-2.5 font-mono text-xs text-slate-300">
-            <MapPin className="h-4 w-4 text-emerald-400" />
-            <span>{BRAND_LOCATION}</span>
-          </div>
-
-          <a
-            href={BRAND_GITHUB}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/90 px-4 py-2.5 font-mono text-xs text-slate-300 hover:text-white transition-all"
-          >
-            <Github className="h-4 w-4 text-cyan-400" />
-            <span>{BRAND_GITHUB_HANDLE}</span>
-          </a>
-        </div>
-
-        {/* Tab Switcher: Direct Transmission vs. Live Firebase Guestbook */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex rounded-2xl border border-slate-800 bg-slate-950/90 p-1.5 font-mono text-xs shadow-xl">
-            <button
-              onClick={() => {
-                soundFx.playClick();
-                setActiveTab('inquiry');
-              }}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all ${
-                activeTab === 'inquiry'
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-md'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <Send className="h-3.5 w-3.5" />
-              <span>DIRECT MESSAGE</span>
-            </button>
-            <button
-              onClick={() => {
-                soundFx.playClick();
-                setActiveTab('guestbook');
-              }}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all ${
-                activeTab === 'guestbook'
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-md'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <Users className="h-3.5 w-3.5" />
-              <span>LIVE COMMUNITY BOARD</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Tab Body */}
-        <div className="text-left">
-          {activeTab === 'guestbook' ? (
-            <FirebaseCommunity />
-          ) : (
-            <div className="rounded-3xl border border-slate-800 bg-slate-950/90 p-6 sm:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl">
-              {isSent ? (
-                <div className="py-12 text-center">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 mb-4">
-                    <CheckCircle className="h-8 w-8" />
-                  </div>
-                  <h3 className="font-syne text-2xl font-bold text-white mb-2">Message Dispatched!</h3>
-                  <p className="font-mono text-sm text-slate-400 max-w-md mx-auto">
-                    Your message has been securely recorded to Prajwal's Firestore queue. He will respond to your email soon!
-                  </p>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-sky-950/70 text-sky-400 border border-sky-800/50">
+                  <Mail className="w-4 h-4" />
                 </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {errorMsg && (
-                    <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 p-3 font-mono text-xs text-rose-300">
-                      {errorMsg}
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block font-mono text-xs text-slate-400 mb-1">Your Name *</label>
-                      <input
-                        required
-                        type="text"
-                        value={formState.name}
-                        onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                        placeholder="Alex Rivers"
-                        className="w-full rounded-xl border border-slate-800 bg-slate-900/80 p-3 text-sm text-white outline-none focus:border-amber-400 font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="block font-mono text-xs text-slate-400 mb-1">Your Email</label>
-                      <input
-                        type="email"
-                        value={formState.email}
-                        onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                        placeholder="alex@example.com"
-                        className="w-full rounded-xl border border-slate-800 bg-slate-900/80 p-3 text-sm text-white outline-none focus:border-amber-400 font-mono"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block font-mono text-xs text-slate-400 mb-1">Subject / Inquiry Type</label>
-                    <input
-                      type="text"
-                      value={formState.subject}
-                      onChange={(e) => setFormState({ ...formState, subject: e.target.value })}
-                      placeholder="Tech collaboration / Academic study / Web project"
-                      className="w-full rounded-xl border border-slate-800 bg-slate-900/80 p-3 text-sm text-white outline-none focus:border-amber-400 font-mono"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-mono text-xs text-slate-400 mb-1">Your Message *</label>
-                    <textarea
-                      required
-                      rows={4}
-                      value={formState.message}
-                      onChange={(e) => setFormState({ ...formState, message: e.target.value })}
-                      placeholder="Hey Prajwal! Loved checking out your ultra-animated BSc CSIT portfolio and lab demos..."
-                      className="w-full rounded-xl border border-slate-800 bg-slate-900/80 p-3 text-sm text-white outline-none focus:border-amber-400 font-sans"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    data-cursor="TRANSMIT"
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 py-3.5 font-mono text-xs font-bold text-slate-950 shadow-[0_0_25px_rgba(245,158,11,0.3)] hover:shadow-[0_0_35px_rgba(245,158,11,0.5)] transition-all disabled:opacity-50"
-                  >
-                    <Send className="h-4 w-4" />
-                    <span>{isSubmitting ? 'TRANSMITTING TO CLOUD...' : 'TRANSMIT TO PRAJWAL VIA FIRESTORE'}</span>
-                  </button>
-                </form>
-              )}
-
-              {/* Official Channel Links */}
-              <div className="mt-8 pt-6 border-t border-slate-800/80 flex flex-wrap items-center justify-center gap-4 text-xs font-mono text-slate-400">
-                <a
-                  href={BRAND_WEBSITE}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 hover:text-amber-400 transition-colors"
-                >
-                  <Globe className="h-4 w-4 text-amber-400" />
-                  <span>prajwal-pokharel.com.np</span>
-                </a>
-
-                <span>•</span>
-
-                <a
-                  href={BRAND_GITHUB}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 hover:text-amber-400 transition-colors"
-                >
-                  <Github className="h-4 w-4 text-amber-400" />
-                  <span>GitHub {BRAND_GITHUB_HANDLE}</span>
-                </a>
-
-                <span>•</span>
-
-                <a
-                  href={`mailto:${BRAND_EMAIL}`}
-                  className="flex items-center gap-1.5 hover:text-amber-400 transition-colors"
-                >
-                  <Mail className="h-4 w-4 text-amber-400" />
-                  <span>{BRAND_EMAIL}</span>
-                </a>
+                <span className="text-sm font-semibold text-white">Email</span>
               </div>
+              <button
+                type="button"
+                onClick={() => copyToClipboard(socials.email.address, 'email')}
+                className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 px-2 py-1 rounded bg-slate-750 hover:bg-slate-700 border border-slate-650 transition-colors cursor-pointer"
+                title="Copy email to clipboard"
+              >
+                {copiedKey === 'email' ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-emerald-400">Copied</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy</span>
+                  </>
+                )}
+              </button>
             </div>
-          )}
+            <p className="text-xs sm:text-sm font-mono text-slate-300 mb-3 break-all">
+              {socials.email.address}
+            </p>
+            <a
+              href={`mailto:${socials.email.address}`}
+              className="text-xs text-sky-400 hover:text-sky-300 font-medium inline-flex items-center gap-1 pt-2 border-t border-slate-700/70"
+            >
+              <span>Send an email</span>
+              <ArrowUpRight className="w-3 h-3" />
+            </a>
+          </motion.div>
+
+          {/* GitHub */}
+          <motion.div
+            variants={childVariants}
+            whileHover={{ y: -3, transition: { duration: 0.2 } }}
+            className="p-5 sm:p-6 rounded-xl bg-slate-800/60 border border-slate-700/80 flex flex-col justify-between shadow-xs"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-slate-750 text-slate-200 border border-slate-650">
+                  <Github className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-semibold text-white">GitHub</span>
+              </div>
+              <span className="text-xs font-mono text-slate-400">Prajwal9762</span>
+            </div>
+            <p className="text-xs sm:text-sm font-mono text-slate-300 mb-3">
+              github.com/Prajwal9762
+            </p>
+            <a
+              href={socials.github.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-sky-400 hover:text-sky-300 font-medium inline-flex items-center gap-1 pt-2 border-t border-slate-700/70"
+            >
+              <span>Visit profile</span>
+              <ArrowUpRight className="w-3 h-3" />
+            </a>
+          </motion.div>
+
+          {/* LinkedIn */}
+          <motion.div
+            variants={childVariants}
+            whileHover={{ y: -3, transition: { duration: 0.2 } }}
+            className="p-5 sm:p-6 rounded-xl bg-slate-800/60 border border-slate-700/80 flex flex-col justify-between shadow-xs"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-sky-950/70 text-sky-400 border border-sky-800/50">
+                  <Linkedin className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-semibold text-white">LinkedIn</span>
+              </div>
+              <span className="text-xs font-mono text-slate-400">Connect</span>
+            </div>
+            <p className="text-xs sm:text-sm font-mono text-slate-300 mb-3 truncate">
+              prajwal-pokharel-1a77b943a
+            </p>
+            <a
+              href={socials.linkedin.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-sky-400 hover:text-sky-300 font-medium inline-flex items-center gap-1 pt-2 border-t border-slate-700/70"
+            >
+              <span>Visit profile</span>
+              <ArrowUpRight className="w-3 h-3" />
+            </a>
+          </motion.div>
+
+          {/* Discord */}
+          <motion.div
+            variants={childVariants}
+            whileHover={{ y: -3, transition: { duration: 0.2 } }}
+            className="p-5 sm:p-6 rounded-xl bg-slate-800/60 border border-slate-700/80 flex flex-col justify-between shadow-xs"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 rounded-lg bg-indigo-950/70 text-indigo-400 border border-indigo-800/50">
+                  <MessageSquare className="w-4 h-4" />
+                </div>
+                <span className="text-sm font-semibold text-white">Discord</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => copyToClipboard(socials.discord.handle, 'discord')}
+                className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 px-2 py-1 rounded bg-slate-750 hover:bg-slate-700 border border-slate-650 transition-colors cursor-pointer"
+                title="Copy Discord handle"
+              >
+                {copiedKey === 'discord' ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-emerald-400">Copied</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Copy</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <p className="text-xs sm:text-sm font-mono text-slate-300 mb-3">
+              Handle: <span className="text-white font-medium">{socials.discord.handle}</span>
+            </p>
+            <span className="text-xs text-slate-400 pt-2 border-t border-slate-700/70">
+              Direct message on Discord
+            </span>
+          </motion.div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
