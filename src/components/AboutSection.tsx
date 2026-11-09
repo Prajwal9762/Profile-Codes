@@ -8,24 +8,24 @@ export const AboutSection: React.FC = () => {
   const shouldReduceMotion = useReducedMotion();
 
   const transitionConfig = {
-    duration: shouldReduceMotion ? 0.01 : 0.85,
-    ease: [0.16, 1, 0.3, 1],
+    duration: shouldReduceMotion ? 0.01 : 0.75,
+    ease: [0.22, 1, 0.36, 1],
   };
 
   const containerVariants = {
-    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 45 },
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 35 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
         ...transitionConfig,
-        staggerChildren: shouldReduceMotion ? 0 : 0.15,
+        staggerChildren: shouldReduceMotion ? 0 : 0.1,
       },
     },
   };
 
   const childVariants = {
-    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 30 },
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 20 },
     visible: {
       opacity: 1,
       y: 0,
@@ -39,7 +39,7 @@ export const AboutSection: React.FC = () => {
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.12, margin: "-40px" }}
+      viewport={{ once: true, amount: 0.15, margin: "-60px" }}
       className="py-16 md:py-24 border-t border-slate-200/80"
     >
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
