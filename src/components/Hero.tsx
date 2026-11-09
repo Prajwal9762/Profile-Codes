@@ -13,8 +13,8 @@ export const Hero: React.FC<HeroProps> = ({ onViewProject }) => {
   const shouldReduceMotion = useReducedMotion();
 
   const transitionConfig = {
-    duration: shouldReduceMotion ? 0.01 : 0.75,
-    ease: [0.22, 1, 0.36, 1],
+    duration: shouldReduceMotion ? 0.01 : 0.85,
+    ease: [0.16, 1, 0.3, 1],
   };
 
   const containerVariants = {
@@ -22,14 +22,14 @@ export const Hero: React.FC<HeroProps> = ({ onViewProject }) => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: shouldReduceMotion ? 0 : 0.12,
-        delayChildren: 0.1,
+        staggerChildren: shouldReduceMotion ? 0 : 0.14,
+        delayChildren: 0.15,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 25 },
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 35 },
     visible: {
       opacity: 1,
       y: 0,
@@ -38,13 +38,16 @@ export const Hero: React.FC<HeroProps> = ({ onViewProject }) => {
   };
 
   return (
-    <section id="top" className="relative pt-28 pb-20 md:pt-36 md:pb-28">
+    <motion.section 
+      id="top" 
+      variants={containerVariants}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.2 }}
+      className="relative pt-28 pb-20 md:pt-36 md:pb-28"
+    >
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
+        <div>
           {/* Avatar & Status Header */}
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6 mb-8">
             <div className="relative group shrink-0 w-24 h-24 sm:w-28 sm:h-28">
@@ -133,8 +136,8 @@ export const Hero: React.FC<HeroProps> = ({ onViewProject }) => {
               <ArrowUpRight className="w-3.5 h-3.5 text-slate-400" />
             </a>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
