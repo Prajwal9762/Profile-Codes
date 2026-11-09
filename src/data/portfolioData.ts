@@ -14,6 +14,8 @@ export interface LearningItem {
   name: string;
   category: string;
   notes: string;
+  status?: string;
+  tools?: string[];
 }
 
 export interface ExperimentTool {
@@ -24,6 +26,12 @@ export interface ExperimentTool {
   buttonLabel: string;
   toolUrl: string; // Configurable link: replace GITHUB_VIEWER_URL with deployed URL
   defaultUsername: string;
+}
+
+export interface CertificationItem {
+  title: string;
+  issuer: string;
+  notes?: string;
 }
 
 export interface PortfolioData {
@@ -42,6 +50,7 @@ export interface PortfolioData {
     languagesAndTech: string[];
     handsOnExperience: string[];
   };
+  certifications: CertificationItem[];
   currentlyLearning: LearningItem[];
   projects: Project[];
   experiments: ExperimentTool[];
@@ -71,8 +80,8 @@ export interface PortfolioData {
 export const portfolioData: PortfolioData = {
   personal: {
     name: 'Prajwal Pokharel',
-    role: 'Student • Developer • Builder',
-    tagline: 'Student • Developer • Builder',
+    role: 'Student • Developer • Builder • VibeCoder',
+    tagline: 'Student • Developer • Builder • VibeCoder',
     shortBio:
       'I enjoy coding, experimenting with new concepts, and building useful things from scratch.',
     education: {
@@ -98,26 +107,38 @@ export const portfolioData: PortfolioData = {
     ],
     handsOnExperience: [
       'Discord bot development',
+      'Graphic design (Adobe Photoshop, Illustrator, InDesign)',
       'Minecraft server/plugin work',
-      'Graphic design with Adobe tools',
     ],
   },
+
+  certifications: [
+    {
+      title: 'Certified in AI & Effective Prompt Engineering',
+      issuer: 'NAVT',
+      notes: 'Fundamental AI concepts, prompting methodologies, and practical applications.',
+    },
+  ],
 
   currentlyLearning: [
     {
       name: 'Python',
-      category: 'Programming & Logic',
-      notes: 'Deepening core knowledge, writing cleaner algorithms, and exploring practical scripting.',
+      category: 'Programming & Scripting',
+      notes: 'Core completed. Continuing practical scripting, algorithm refinement, and backend exploration.',
+      status: 'Completed Core',
+    },
+    {
+      name: 'Graphic Design',
+      category: 'Design & Visual Publishing',
+      notes: 'Completed in Adobe Photoshop, Illustrator, and InDesign for visual assets, branding, and layout design.',
+      status: 'Completed',
+      tools: ['Photoshop', 'Illustrator', 'InDesign'],
     },
     {
       name: 'Web Development',
       category: 'Frontend & Full-stack Basics',
-      notes: 'Practicing modern web standards, component structures, and responsive layouts.',
-    },
-    {
-      name: 'Graphic Design',
-      category: 'Design & Visuals',
-      notes: 'Honing visual composition, typography, and asset creation using Adobe tools.',
+      notes: 'Active focus on modern web standards, responsive UI design, component structures, and API integration.',
+      status: 'In Progress',
     },
   ],
 
